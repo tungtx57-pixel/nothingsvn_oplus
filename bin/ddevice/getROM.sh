@@ -83,7 +83,22 @@ if [ ! -f "${baserom}" ] && [[ "$baserom" == http* ]]; then
             echo "[*] gdown not found, installing..."
             pip3 install gdown --quiet
         fi
-        gdown "${baserom}" -O oplusrom.zip
+
+        # Extract file ID from Google Drive URL
+        GDRIVE_ID=""
+        if [[ "$baserom" =~ /file/d/([a-zA-Z0-9_-]+) ]]; then
+            GDRIVE_ID="${BASH_REMATCH[1]}"
+        elif [[ "$baserom" =~ [?&]id=([a-zA-Z0-9_-]+) ]]; then
+            GDRIVE_ID="${BASH_REMATCH[1]}"
+        fi
+
+        if [ -z "$GDRIVE_ID" ]; then
+            error "[-] Could not extract file ID from Google Drive link."
+            exit 1
+        fi
+
+        echo "[*] Google Drive file ID: $GDRIVE_ID"
+        gdown "$GDRIVE_ID" -O oplusrom.zip
     else
         aria2c --max-download-limit=1024M --file-allocation=none --summary-interval=10 \
                -x16 -s16 -j5 -o oplusrom.zip "${baserom}"
@@ -93,6 +108,14 @@ if [ ! -f "${baserom}" ] && [[ "$baserom" == http* ]]; then
 
     if [ ! -f "${baserom}" ]; then
         error "Download error!"
+        exit 1
+    fi
+
+    # Check if the downloaded file is too small (likely an error page)
+    FILE_SIZE=$(stat -c%s "${baserom}" 2>/dev/null || stat -f%z "${baserom}" 2>/dev/null)
+    if [ "$FILE_SIZE" -lt 1048576 ]; then
+        error "[-] Downloaded file is too small (${FILE_SIZE} bytes). Likely a failed download."
+        rm -f "${baserom}"
         exit 1
     fi
 elif [ -f "${baserom}" ]; then
