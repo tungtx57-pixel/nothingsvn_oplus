@@ -23,8 +23,8 @@ if [ "$1" == "setup" ]; then
         -L https://api.github.com/repos/$3/contents/$4
   exit 0
 elif [ "$1" == "dummy" ]; then
-  rclone -v --config="$RCLONE_CONFIG_1DRIVE" copy "$work_dir/dummy.txt" "$ONEDRIVE_REMOTE:NTBuild/${uploaddir}/${VERSION}/${DEVICE_MODEL}/" || {
-    echo "[ONEDRIVE] - Error uploading file to OneDrive: $FILENAME"
+  rclone -v --config="$RCLONE_CONFIG_FILE" copy "$work_dir/dummy.txt" "$CLOUD_REMOTE:NTBuild/${uploaddir}/${VERSION}/${DEVICE_MODEL}/" || {
+    echo "[GDRIVE] - Error uploading file to Google Drive: $FILENAME"
     exit 1
   }
   exit 0
@@ -57,10 +57,10 @@ echo "[SCRIPT] - Output: "
 output_file="out/${NTBUILD}_${VERSION}_${DEVICE_MODEL}_OS${BASE_BUILD_ID}_${hash}_${status}.zip"
 echo "${NTBUILD}_${VERSION}_${DEVICE_MODEL}_OS${BASE_BUILD_ID}_${hash}_${status}.zip" > $work_dir/bin/ddevice/output_zip.txt
 echo "$output_file"
-echo "[ONEDRIVE] - Uploading"
-# 1drive
-rclone -v --config="$RCLONE_CONFIG_1DRIVE" copy "$output_file" "$ONEDRIVE_REMOTE:NTBuild/${uploaddir}/${VERSION}/${DEVICE_MODEL}/" || {
-echo "[ONEDRIVE] - Error uploading file to OneDrive: $output_file"
+echo "[GDRIVE] - Uploading"
+# gdrive
+rclone -v --config="$RCLONE_CONFIG_FILE" copy "$output_file" "$CLOUD_REMOTE:NTBuild/${uploaddir}/${VERSION}/${DEVICE_MODEL}/" || {
+echo "[GDRIVE] - Error uploading file to Google Drive: $output_file"
 exit 1
 }
 
