@@ -83,7 +83,7 @@ if [ ! -f "${baserom}" ] && [[ "$baserom" == http* ]]; then
             echo "[*] gdown not found, installing..."
             pip3 install gdown --quiet
         fi
-        gdown "${baserom}" -O oplusrom.zip --fuzzy
+        gdown "${baserom}" -O oplusrom.zip
     else
         aria2c --max-download-limit=1024M --file-allocation=none --summary-interval=10 \
                -x16 -s16 -j5 -o oplusrom.zip "${baserom}"
